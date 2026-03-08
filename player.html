@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video</title>
+
+<style>
+body{
+    margin:0;
+    background:#000;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+video{
+    width:100%;
+    max-width:900px;
+}
+</style>
+</head>
+
+<body>
+
+<video id="video" controls playsinline webkit-playsinline preload="metadata">
+    <source id="source" type="video/mp4">
+    <track id="track" kind="subtitles" srclang="vi" label="Vietnamese" default>
+</video>
+
+<script>
+const params = new URLSearchParams(location.search)
+
+const video = params.get("v")
+const subtitle = params.get("s")
+
+if(video){
+    document.getElementById("source").src = decodeURIComponent(video)
+}
+
+if(subtitle){
+    document.getElementById("track").src = decodeURIComponent(subtitle)
+}
+
+document.getElementById("video").load()
+</script>
+
+</body>
+</html>
