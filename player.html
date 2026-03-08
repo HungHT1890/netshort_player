@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 
+<title>Video Player</title>
+
 <style>
+
 body{
 margin:0;
 background:#000;
@@ -20,6 +24,7 @@ width:100%;
 max-width:900px;
 background:#000;
 }
+
 </style>
 
 </head>
@@ -49,21 +54,23 @@ try{
 
 const res = await fetch(url,{referrerPolicy:"no-referrer"})
 
-/* đọc raw bytes */
+/* đọc subtitle dạng binary */
 
 const buffer = await res.arrayBuffer()
 
-/* decode UTF-8 */
+/* decode UTF8 */
 
 let text = new TextDecoder("utf-8").decode(buffer)
 
-/* nếu header WEBVTT thiếu thì thêm */
+/* đảm bảo header WEBVTT */
+
+text = text.trim()
 
 if(!text.startsWith("WEBVTT")){
 text = "WEBVTT\n\n" + text
 }
 
-/* tạo blob */
+/* tạo blob subtitle */
 
 const blob = new Blob([text],{type:"text/vtt"})
 const blobUrl = URL.createObjectURL(blob)
@@ -71,6 +78,7 @@ const blobUrl = URL.createObjectURL(blob)
 /* tạo track */
 
 const track = document.createElement("track")
+
 track.kind = "subtitles"
 track.label = "Vietnamese"
 track.srclang = "vi"
@@ -91,7 +99,7 @@ t.mode = "showing"
 
 }catch(e){
 
-console.log("subtitle error",e)
+console.log("subtitle error:",e)
 
 }
 
