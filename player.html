@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 
 <style>
-
 body{
 margin:0;
 background:#000;
@@ -22,7 +20,6 @@ width:100%;
 max-width:900px;
 background:#000;
 }
-
 </style>
 
 </head>
@@ -37,13 +34,13 @@ background:#000;
 
 const params = new URLSearchParams(location.search)
 
-const video = params.get("v")
-const sub = params.get("s")
+const videoUrl = params.get("v")
+const subUrl = params.get("s")
 
-const videoEl = document.getElementById("video")
+const video = document.getElementById("video")
 
-if(video){
-document.getElementById("video_src").src = decodeURIComponent(video)
+if(videoUrl){
+document.getElementById("video_src").src = decodeURIComponent(videoUrl)
 }
 
 async function loadSubtitle(url){
@@ -51,32 +48,44 @@ async function loadSubtitle(url){
 try{
 
 const res = await fetch(url,{referrerPolicy:"no-referrer"})
-let text = await res.text()
 
-/* fix encoding subtitle */
+/* đọc raw bytes */
 
-text = decodeURIComponent(escape(text))
+const buffer = await res.arrayBuffer()
+
+/* decode UTF-8 */
+
+let text = new TextDecoder("utf-8").decode(buffer)
+
+/* nếu header WEBVTT thiếu thì thêm */
+
+if(!text.startsWith("WEBVTT")){
+text = "WEBVTT\n\n" + text
+}
 
 /* tạo blob */
 
 const blob = new Blob([text],{type:"text/vtt"})
 const blobUrl = URL.createObjectURL(blob)
 
-const track = document.createElement("track")
+/* tạo track */
 
+const track = document.createElement("track")
 track.kind = "subtitles"
 track.label = "Vietnamese"
 track.srclang = "vi"
 track.src = blobUrl
 track.default = true
 
-videoEl.appendChild(track)
+video.appendChild(track)
 
 /* bật subtitle */
 
 track.addEventListener("load", () => {
 
-videoEl.textTracks[0].mode = "showing"
+for(const t of video.textTracks){
+t.mode = "showing"
+}
 
 })
 
@@ -88,11 +97,11 @@ console.log("subtitle error",e)
 
 }
 
-if(sub){
-loadSubtitle(sub)
+if(subUrl){
+loadSubtitle(subUrl)
 }
 
-videoEl.load()
+video.load()
 
 </script>
 
