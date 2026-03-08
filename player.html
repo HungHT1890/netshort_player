@@ -20,6 +20,7 @@ height:100vh;
 video{
 width:100%;
 max-width:900px;
+background:#000;
 }
 
 </style>
@@ -52,18 +53,17 @@ try{
 const res = await fetch(url,{referrerPolicy:"no-referrer"})
 let text = await res.text()
 
-/* fix encoding lỗi */
+/* fix encoding subtitle */
 
 text = decodeURIComponent(escape(text))
 
-/* tạo blob subtitle */
+/* tạo blob */
 
 const blob = new Blob([text],{type:"text/vtt"})
 const blobUrl = URL.createObjectURL(blob)
 
-/* attach subtitle */
-
 const track = document.createElement("track")
+
 track.kind = "subtitles"
 track.label = "Vietnamese"
 track.srclang = "vi"
@@ -72,9 +72,17 @@ track.default = true
 
 videoEl.appendChild(track)
 
+/* bật subtitle */
+
+track.addEventListener("load", () => {
+
+videoEl.textTracks[0].mode = "showing"
+
+})
+
 }catch(e){
 
-console.log("subtitle load fail")
+console.log("subtitle error",e)
 
 }
 
