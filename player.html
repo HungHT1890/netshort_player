@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 
-<title>Video Player</title>
-
 <style>
 
 body{
@@ -22,7 +20,6 @@ height:100vh;
 video{
 width:100%;
 max-width:900px;
-background:#000;
 }
 
 </style>
@@ -33,7 +30,6 @@ background:#000;
 
 <video id="video" controls playsinline webkit-playsinline preload="metadata">
 <source id="video_src" type="video/mp4">
-<track id="sub_track" kind="subtitles" srclang="vi" label="Vietnamese" default>
 </video>
 
 <script>
@@ -43,13 +39,11 @@ const params = new URLSearchParams(location.search)
 const video = params.get("v")
 const sub = params.get("s")
 
-if(video){
-
-document.getElementById("video_src").src = decodeURIComponent(video)
-
-}
-
 const videoEl = document.getElementById("video")
+
+if(video){
+document.getElementById("video_src").src = decodeURIComponent(video)
+}
 
 async function loadSubtitle(url){
 
@@ -58,16 +52,25 @@ try{
 const res = await fetch(url,{referrerPolicy:"no-referrer"})
 let text = await res.text()
 
-/* fix encoding lỗi kiểu: Trá»£i */
+/* fix encoding lỗi */
 
 text = decodeURIComponent(escape(text))
 
-/* tạo blob để attach subtitle */
+/* tạo blob subtitle */
 
 const blob = new Blob([text],{type:"text/vtt"})
 const blobUrl = URL.createObjectURL(blob)
 
-document.getElementById("sub_track").src = blobUrl
+/* attach subtitle */
+
+const track = document.createElement("track")
+track.kind = "subtitles"
+track.label = "Vietnamese"
+track.srclang = "vi"
+track.src = blobUrl
+track.default = true
+
+videoEl.appendChild(track)
 
 }catch(e){
 
@@ -78,9 +81,7 @@ console.log("subtitle load fail")
 }
 
 if(sub){
-
 loadSubtitle(sub)
-
 }
 
 videoEl.load()
